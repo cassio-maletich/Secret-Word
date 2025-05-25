@@ -44,19 +44,20 @@ function App() {
     setLetters(wordLetters)
   }
 
-  const startGame = () => {
+  const startGame = useCallback(() => {
+    clearLetterStates()
     pickWordAndCategory()
     setGameStage(stages[1].name)
-  }
+  })
 
   const verifyLetter = (l) => {
     l = l.toLowerCase()
-    console.log('verifyLetter', l);
 
     // check if already guessed
     if (guessedLetters.includes(l) || wrongLetters.includes(l)) {
       return
     }
+    console.log('verifyLetter', l)
 
     if (letters.includes(l)) {
       setGuessedLetters((actualGuessedLetters) => [ ...actualGuessedLetters, l ])
@@ -81,6 +82,19 @@ function App() {
       setGameStage(stages[2].name)
     }
   }, [guesses])
+
+  // monitor win condition
+  useEffect(() => {
+    const uniqueLetters = [... new Set(letters)]
+    console.log('uniqueLetters', uniqueLetters)
+    console.log('guessedLetters', guessedLetters)
+
+    if (guessedLetters.length > 0 && guessedLetters.length == uniqueLetters.length) {
+      setScore((actualScore) => actualScore += 100)
+
+      startGame()
+    }
+  }, [guessedLetters, letters, startGame])
 
   const retry = () => {
     setGuesses(tries)
